@@ -2,7 +2,7 @@
 
 Planificador semanal de comidas modular: **proteína × sabor × hidrato × verdura**. Pensado para perder grasa de forma sostenida con 2 comidas principales + 1 puente al día, cocinando en 2 sesiones por semana.
 
-Un solo `index.html`, sin backend ni dependencias de build. Los datos se guardan en el navegador (`localStorage`).
+La lógica está en un solo `index.html`, sin backend ni dependencias de build. Los datos se guardan en el navegador (`localStorage`). Se puede instalar como PWA y funciona sin conexión.
 
 ## Vistas
 
@@ -34,3 +34,7 @@ Son estimaciones: el mantenimiento base se calibra con el ritmo real del Histori
 ## Despliegue
 
 GitHub Pages desde `main`, carpeta raíz. Siguientes pasos en [PENDIENTES.md](PENDIENTES.md).
+
+Al publicar una versión nueva: si solo cambia `index.html`, basta con el push. Si cambia la fuente, un icono, el manifest o `sw.js`, sube también `VERSION` en `sw.js`.
+
+Los iconos PNG salen de `icons/icon.svg`. La fuente Instrument Sans se distribuye bajo la licencia [OFL](fonts/OFL.txt).

@@ -7,13 +7,18 @@
 
 ## PWA (app en pantalla de inicio de iOS)
 
-- [ ] `manifest.webmanifest` con nombre, colores, `display: standalone` e iconos 192 y 512 px.
-- [ ] `apple-touch-icon` de 180 px y meta tags de iOS.
-- [ ] `sw.js` para caché y uso sin conexión.
-- [ ] Alojar la fuente en el repo en lugar de Google Fonts.
-- [ ] Rutas relativas (la app vive en `/nombre-repo/`).
-- [ ] Aviso de instalación de una sola vez en iOS (Compartir → Añadir a pantalla de inicio).
-- [ ] Pedir almacenamiento persistente (`navigator.storage.persist()`).
+- [x] `manifest.webmanifest` con nombre, colores, `display: standalone` e iconos 192 y 512 px.
+- [x] `apple-touch-icon` de 180 px y meta tags de iOS.
+- [x] `sw.js` para caché y uso sin conexión.
+- [x] Alojar la fuente en el repo en lugar de Google Fonts.
+- [x] Rutas relativas (la app vive en `/nombre-repo/`).
+- [x] Aviso de instalación de una sola vez en iOS (Compartir → Añadir a pantalla de inicio).
+- [x] Pedir almacenamiento persistente (`navigator.storage.persist()`).
+- [ ] Probar en un iPhone real: instalación, uso sin conexión, barra de estado y modo oscuro.
+
+## Diseño
+
+- [ ] Hacerla más responsive: ahora es una columna de 640 px como máximo, pensada para móvil, y en pantallas grandes desaprovecha el espacio.
 
 ## Cálculo (aparcado)
 

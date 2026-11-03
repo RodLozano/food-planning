@@ -4,10 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Matriz de comidas</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Matriz">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3f4f2">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101312">
 <style>
+@font-face{font-family:'Instrument Sans';font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/InstrumentSans.woff2) format('woff2')}
 /* Layout: app móvil de una columna; cabecera compacta fija arriba, pestañas fijas abajo al alcance del pulgar */
 :root{
   --bg:#f3f4f2;
@@ -188,6 +195,11 @@ details.assume summary{cursor:pointer;font-weight:600;font-size:14px}
 .pesos{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .pesos span{background:var(--bg);border-radius:999px;padding:3px 6px 3px 10px;font-size:13px;display:inline-flex;align-items:center;gap:2px}
 textarea{width:100%;min-height:70px;border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:8px;font:12px/1.4 ui-monospace,Menlo,monospace;color:var(--ink)}
+/* Aviso de instalación en iOS */
+.installnote{margin-top:14px}
+.installnote p{margin:0 0 8px}
+/* iOS amplía la página al enfocar campos con letra menor de 16 px */
+@media (hover:none) and (pointer:coarse){select,input,textarea{font-size:16px!important}}
 @media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -203,6 +215,11 @@ textarea{width:100%;min-height:70px;border:1px solid var(--line);background:var(
       <a href="#historial">Historial</a>
     </div></nav>
   </header>
+  <aside class="card installnote" id="installnote" hidden>
+    <h3>Instálala en tu iPhone</h3>
+    <p class="small">Toca Compartir y luego Añadir a pantalla de inicio. La app instalada guarda sus datos aparte de Safari: si ya tienes datos aquí, pásalos con Historial → Copia de seguridad.</p>
+    <button class="btn" data-a="installnote-ok">Entendido</button>
+  </aside>
   <main id="view"></main>
 </div>
 <div class="sheet-wrap" id="sheet" hidden></div>
@@ -692,6 +709,7 @@ document.addEventListener('click',e=>{
   else if(a==='lib+'){setLibres(S,libCount(S)+1);commit();}
   else if(a==='pes-'){S.pescado=Math.max(0,S.pescado-1);generate(S);commit();}
   else if(a==='pes+'){S.pescado=Math.min(5,S.pescado+1);generate(S);commit();}
+  else if(a==='installnote-ok'){try{localStorage.setItem(INSTALL_NOTE_KEY,'1');}catch(err){}$('installnote').hidden=true;}
   else if(a==='regen'){S.seed=(S.seed*48271)%2147483647||7;generate(S);commit();}
   else if(a==='edit'){sheetT=+b.dataset.t;renderSheet();}
   else if(a==='close'){sheetT=null;render();}
@@ -736,8 +754,35 @@ document.addEventListener('change',e=>{
   }
 });
 window.addEventListener('hashchange',()=>{render();window.scrollTo(0,0);});
+
+/* ---------- PWA ---------- */
+// Clave aparte de KEY: así el aviso no entra en el estado ni en las copias de seguridad
+const INSTALL_NOTE_KEY='matriz-comidas-aviso-ios';
+const RELOAD_AFTER_MS=6*60*60*1000;
+const isStandalone=()=>navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;
+const isIOS=()=>/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+function initInstallNote(){
+  if(isStandalone()||!isIOS())return;
+  try{if(localStorage.getItem(INSTALL_NOTE_KEY))return;}catch(e){}
+  $('installnote').hidden=false;
+}
+function initPWA(){
+  initInstallNote();
+  if(isStandalone()&&navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+  if('serviceWorker' in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});
+  // iOS mantiene la app abierta días y no tiene gesto para recargar: al volver tras un rato
+  // se recarga para recoger la versión nueva y recalcular el día actual.
+  let hiddenAt=null;
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){hiddenAt=Date.now();return;}
+    if(hiddenAt!=null&&Date.now()-hiddenAt>=RELOAD_AFTER_MS&&navigator.onLine){location.reload();return;}
+    if('serviceWorker' in navigator)navigator.serviceWorker.getRegistration().then(r=>{if(r)r.update().catch(()=>{});}).catch(()=>{});
+  });
+}
+
 S=load();
 render();
+initPWA();
 </script>
 </body>
 </html>
